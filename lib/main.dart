@@ -24,9 +24,6 @@ class MapPage extends StatefulWidget {
 
 class MapPageState extends State<MapPage> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-  static LatLng london = LatLng(51.5, -0.09);
-  static LatLng paris = LatLng(48.8566, 2.3522);
-  static LatLng dublin = LatLng(53.3498, -6.2603);
   static LatLng zurich = LatLng(47.37174, 8.54226);
 
   MapController mapController;
@@ -37,92 +34,73 @@ class MapPageState extends State<MapPage> {
     mapController = MapController();
   }
 
-  Widget build(BuildContext context) {
-    var markers = <Marker>[
-      Marker(
-        width: 80.0,
-        height: 80.0,
-        point: london,
-        builder: (ctx) => Container(
-            child: GestureDetector(
-          onTap: () {
-            _scaffoldKey.currentState.showSnackBar(SnackBar(
-              content: Text('Tapped on blue FlutterLogo Marker'),
-            ));
-          },
-          child: FlutterLogo(),
-        )),
-      ),
-      Marker(
-        width: 80.0,
-        height: 80.0,
-        point: dublin,
-        builder: (ctx) => Container(
-            child: GestureDetector(
-          onTap: () {
-            _scaffoldKey.currentState.showSnackBar(SnackBar(
-              content: Text('Tapped on green FlutterLogo Marker'),
-            ));
-          },
-          child: FlutterLogo(
-            colors: Colors.green,
-          ),
-        )),
-      ),
-      Marker(
-        width: 80.0,
-        height: 80.0,
-        point: paris,
-        builder: (ctx) => Container(
-            child: GestureDetector(
-          onTap: () {
-            _scaffoldKey.currentState.showSnackBar(SnackBar(
-              content: Text('Tapped on purple FlutterLogo Marker'),
-            ));
-          },
-          child: FlutterLogo(colors: Colors.purple),
-        )),
-      ),
-    ];
+  var grid_size_hori = 11;
+  var grid_size_vert = 8;
+  var distance_bt_grid = 1;
 
+  var markers = <Marker>[];
+  void _addMarkerFromList() {
+    while (markers.isNotEmpty) {
+      markers.removeLast();
+    }
+    var map_corner_right_up = mapController.bounds.northEast;
+    var map_corner_left_down = mapController.bounds.southWest;
+    for (int grid_count_hori in [
+      for (var i = -2; i < grid_size_hori + 2; i += 1) i
+    ]) {
+      var latitude = map_corner_right_up.latitude +
+          (map_corner_left_down.latitude - map_corner_right_up.latitude) /
+              grid_size_hori *
+              grid_count_hori;
+      for (int grid_count_verti in [
+        for (var i = -2; i < grid_size_vert + 2; i += 1) i
+      ]) {
+        var longitude = map_corner_right_up.longitude +
+            (map_corner_left_down.longitude - map_corner_right_up.longitude) /
+                grid_size_vert *
+                grid_count_verti;
+        markers.add(Marker(
+          point: LatLng(latitude, longitude),
+          builder: (ctx) => Container(
+              child: GestureDetector(
+            onTap: () {},
+            child: Icon(
+              Icons.stop,
+              size: 90.0,
+              color: Colors.green.withOpacity(0.8),
+            ),
+          )),
+        ));
+      }
+    }
+  }
+
+  Widget build(BuildContext context) {
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(title: Text('Crowdless')),
-      body: Padding(
-        padding: EdgeInsets.all(8.0),
-        child: Column(
-          children: [
-            Padding(
-              padding: EdgeInsets.only(top: 8.0, bottom: 8.0),
-              child: MaterialButton(
-                color: Colors.blue,
-                onPressed: () {
-                  print(mapController.bounds.northEast.toString());
-                },
-                child: Text(
-                  'show grid on map',
-                  style: TextStyle(color: Colors.white),
-                ),
-              ),
-            ),
-            Flexible(
-              child: FlutterMap(
-                mapController: mapController,
-                options: MapOptions(
-                  center: zurich,
-                  zoom: 14.0,
-                ),
-                layers: [
-                  TileLayerOptions(
-                      urlTemplate:
-                          'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-                      subdomains: ['a', 'b', 'c']),
-                  MarkerLayerOptions(markers: markers)
-                ],
-              ),
-            ),
-          ],
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () {
+          _addMarkerFromList();
+          setState(() {
+            markers = List.from(markers);
+          });
+        },
+        icon: Icon(Icons.loop),
+        label: Text("Update grid"),
+      ),
+      body: FlutterMap(
+        mapController: mapController,
+        options: MapOptions(
+          center: zurich,
+          zoom: 14.0,
         ),
+        layers: [
+          TileLayerOptions(
+              urlTemplate: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+              subdomains: ['a', 'b', 'c']),
+          MarkerLayerOptions(markers: markers)
+        ],
       ),
     );
   }
