@@ -8,26 +8,27 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Map Example',
-      home: OnTapPage(),
+      title: 'Crowdless',
+      home: MapPage(),
     );
   }
 }
 
-class OnTapPage extends StatefulWidget {
+class MapPage extends StatefulWidget {
   static const String route = 'on_tap';
 
   @override
-  OnTapPageState createState() {
-    return OnTapPageState();
+  MapPageState createState() {
+    return MapPageState();
   }
 }
 
-class OnTapPageState extends State<OnTapPage> {
+class MapPageState extends State<MapPage> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   static LatLng london = LatLng(51.5, -0.09);
   static LatLng paris = LatLng(48.8566, 2.3522);
   static LatLng dublin = LatLng(53.3498, -6.2603);
+  static LatLng zurich = LatLng(47.37174, 8.54226);
 
   @override
   Widget build(BuildContext context) {
@@ -80,22 +81,29 @@ class OnTapPageState extends State<OnTapPage> {
 
     return Scaffold(
       key: _scaffoldKey,
-      appBar: AppBar(title: Text('OnTap')),
+      appBar: AppBar(title: Text('Crowdless')),
       body: Padding(
         padding: EdgeInsets.all(8.0),
         child: Column(
           children: [
             Padding(
               padding: EdgeInsets.only(top: 8.0, bottom: 8.0),
-              child: Text('Try tapping on the markers'),
+              child: MaterialButton(
+                color: Colors.blue,
+                onPressed: () {
+                  print('Button pressed');
+                },
+                child: Text(
+                  'show grid on map',
+                  style: TextStyle(color: Colors.white),
+                ),
+              ),
             ),
             Flexible(
               child: FlutterMap(
                 options: MapOptions(
-                  center: LatLng(51.5, -0.09),
-                  zoom: 5.0,
-                  maxZoom: 5.0,
-                  minZoom: 3.0,
+                  center: zurich,
+                  zoom: 14.0,
                 ),
                 layers: [
                   TileLayerOptions(
