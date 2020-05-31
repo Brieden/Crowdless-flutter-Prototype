@@ -10,13 +10,12 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Crowdless',
       home: MapPage(),
+      debugShowCheckedModeBanner: false,
     );
   }
 }
 
 class MapPage extends StatefulWidget {
-  static const String route = 'on_tap';
-
   @override
   MapPageState createState() {
     return MapPageState();
@@ -30,7 +29,14 @@ class MapPageState extends State<MapPage> {
   static LatLng dublin = LatLng(53.3498, -6.2603);
   static LatLng zurich = LatLng(47.37174, 8.54226);
 
+  MapController mapController;
+
   @override
+  void initState() {
+    super.initState();
+    mapController = MapController();
+  }
+
   Widget build(BuildContext context) {
     var markers = <Marker>[
       Marker(
@@ -91,7 +97,7 @@ class MapPageState extends State<MapPage> {
               child: MaterialButton(
                 color: Colors.blue,
                 onPressed: () {
-                  print('Button pressed');
+                  print(mapController.bounds.northEast.toString());
                 },
                 child: Text(
                   'show grid on map',
@@ -101,6 +107,7 @@ class MapPageState extends State<MapPage> {
             ),
             Flexible(
               child: FlutterMap(
+                mapController: mapController,
                 options: MapOptions(
                   center: zurich,
                   zoom: 14.0,
